@@ -2,7 +2,8 @@
     "id" serial PRIMARY KEY,
     "email" varchar(100) UNIQUE NOT NULL,
     "username" varchar(100) UNIQUE NOT NULL,
-    "password" varchar(100) NOT NULL
+    "password" varchar(100) NOT NULL,
+    "saved_recipes_count" integer 
 );
 
 CREATE TABLE "Recipe" (
