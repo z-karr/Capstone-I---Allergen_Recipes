@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Results</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <h2>Recipes excluding </h2>
+    {% if recipes %}
+        <ul id="search-results">
+            {% for recipe in recipes %}
+            <li>
+                <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
+                <h2>{{ recipe['title'] }}</h2>
+                <!-- <a href="{{ url_for('recipe', recipe_id=recipe['id']) }}">View Recipe</a> -->
+                <a href="{{ recipe.sourceUrl }}" target="_blank"">View Recipe</a>
+                <form method="POST" action="/recipe/{{ recipe.id }}/like">
+                    <button type="submit" class="btn btn-link">
+                      {% if g.user and recipe in g.user.saved_recipes %}
+                        <i class="fas fa-star text-warning"></i> Unsave
+                      {% else %}
+                        <i class="far fa-star"></i> Save
+                      {% endif %}
+                    </button>
+                  </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <button id="load-more">Load More</button>
+    {% else %}
+        <p>No recipes found.</p>
+    {% endif %}
+
+    
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+
+
+
+</html>
