@@ -42,7 +42,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 connect_db(app)
 
 
-# # #   User registration and log-in, logout routes # # #
+# # #   User registration/signup, log-in, logout routes # # #
 
 @app.before_request
 def add_user_to_g():
@@ -72,11 +72,11 @@ def do_logout():
 def signup():
     """Handle user registration.
     
-    Create new user and add to DB. Redirect to home page.
+        Create new user and add to DB. Redirect to home page.
     
-    If form not valid, present form.
+        If form not valid, present form.
     
-    If there is already a user with that username: flash message and re-present form.
+        If there is already a user with that username: flash message and re-present form.
     """
     form = AddUserForm()
 
@@ -120,37 +120,9 @@ def login():
         flash(("Invalid credentials.", 'danger'))
 
     return render_template('login.html', form=form)
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     # the login route code
 
-#     form = LoginForm()
 
-    
-#     if form.validate_on_submit():
-#         email_or_username = form.email_or_username.data
-#         password = form.password.data
 
-#         user = None  # Initialize user to None
-
-#         # Check if the input contains '@', if yes, consider it as an email
-#         if '@' in email_or_username:
-#             user = User.query.filter_by(email=email_or_username).first()
-#         else:
-#             user = User.query.filter_by(username=email_or_username).first()
-
-#         if user and user.password == password:  # Directly compare the passwords
-#             do_login(user)
-#     ###LEFT OFF HERE TRYING TO REDIRECT TO INDEX ON SUCCESFUL LOGIN
-#             # Redirect to the index route after successful login
-#             flash(f'Hello, {User.username}!', 'success')
-#         return url_for('/index', user=user)
-#     else:
-#         flash('Invalid email or password!', 'error')
-
-#         return render_template('/login.html', form=form)
-
-  
 @app.route('/logout')
 def logout():
     # the logout route code
@@ -166,59 +138,7 @@ def logout():
 def index():
     # Create an instance of the SearchForm
     form = SearchForm()
-    ##### Try to COMBINE /SEARCH into this route, and redirect to /search from here
 
-
-    # Now 'selected_allergens' contains a list of selected allergens
-    # if request.method == 'POST':
-    #     # Handle form submission
-    #     selected_allergens = []
-    #     for allergen in ['dairy', 'eggs', 'nuts', 'peanuts', 'carrots', 'celery', 'wheat', 'soy', 'fish', 'shellfish', 'fruit']:
-    #         if request.form.get(allergen):
-    #             selected_allergens.append(allergen)
-
-    # if form.validate_on_submit():
-    #     selected_allergens = form.allergens.data
-
-        # # Define a mapping of allergens to their Spoonacular API names
-        # allergen_mapping = {
-        #     'Dairy': 'dairy',
-        #     'Eggs': 'eggs',
-        #     'Nuts': 'nuts',
-        #     'Peanuts': 'peanuts',
-        #     'Carrots': 'carrots',
-        #     'Celery': 'celery',
-        #     'Wheat': 'wheat',
-        #     'Soy': 'soy',
-        #     'Fish': 'fish',
-        #     'Shellfish': 'shellfish',
-        #     'Fruit': 'fruit'
-        # }
-
-    # #     # Translate the selected allergens into Spoonacular API format
-    #     allergens_str = ','.join(allergen_mapping[allergen] for allergen in selected_allergens)
-
-    #     page = request.args.get('page', default=1, type=int)
-    #     api_key = '5e3f80e8f6f64272a5a29fc9e6c99b74'
-    #     recipes_per_page = 10
-    #     start = (page - 1) * recipes_per_page
-
-    #     url = f"https://api.spoonacular.com/recipes/complexSearch?apiKey={api_key}&excludeIngredients={allergens_str}&number={recipes_per_page}&offset={start}"
-    #     response = requests.get(url)
-
-    #     if response.status_code == 200:
-    #         data = response.json()
-    #         recipes = data.get('search-results', [])  # Ensure recipes is a list, even if it's empty
-
-    #         # Debugging: Print the recipes data to the console
-    #         print(recipes)
-
-    #     return redirect('search.html', recipes=recipes, form=form)
-
-
-
-    # Your Spoonacular API key
-    # api_key = '5e3f80e8f6f64272a5a29fc9e6c99b74'
 
     # Make a request to the Spoonacular API to fetch random recipes
     url = f'https://api.spoonacular.com/recipes/random?number=5&apiKey={apiKey}'
@@ -366,42 +286,6 @@ def save_recipe(recipe_id):
 
     # else: 
     #     return redirect(url_for('index'))
-
-
-# @app.route('/users/<int:user_id>/liked')
-# def savedRecipes(user_id):
-#     """Show page listing user saved recipes"""
-#     user = User.query.get_or_404(user_id)
-#     savedRecipes = user.Saved_Recipes
-
-#     return render_template('saved.html', user=user, savedRecipes=savedRecipes)
-
-
-
-
-# # # Logged-in User action(s) routes # # #
-
-# @app.route('/save/<int:recipe_id>', methods=['POST'])
-# def save_recipe(recipe_id):
-#     # the save recipe route code
-#     recipe = Recipe.query.get(recipe_id)
-#     current_user.saved_recipes.append(recipe)
-#     db.session.commit()
-#     flash('Recipe saved successfully!', 'success')
-
-#     return redirect(url_for('recipe', recipe_id=recipe_id))
-
-
-# @app.route('/unsave/<int:recipe_id>', methods=['POST'])
-# def unsave_recipe(recipe_id):
-#     # the unsave recipe route code
-#     recipe = Recipe.query.get(recipe_id)
-#     current_user.saved_recipes.remove(recipe)
-#     db.session.commit()
-#     flash('Recipe removed from saved list!', 'success')
-
-#     return redirect(url_for('recipe', recipe_id=recipe_id))
-
 
 
 
