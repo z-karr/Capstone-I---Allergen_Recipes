@@ -3,15 +3,12 @@
     "email" varchar(100) UNIQUE NOT NULL,
     "username" varchar(100) UNIQUE NOT NULL,
     "password" varchar(100) NOT NULL,
-    "saved_recipes_count" integer 
+    "saved_recipes" integer NOT NULL
 );
 
 CREATE TABLE "Recipe" (
     "id" serial PRIMARY KEY,
-    "title" varchar(100) NOT NULL,
-    "usedIngredients" varchar(200) NOT NULL,
-    "instructions" text NOT NULL,
-    "image" varchar(200) NOT NULL
+    "spoonacular_id" integer UNIQUE
 );
 
 CREATE TABLE "Saved_Recipes" (

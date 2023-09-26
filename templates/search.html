@@ -15,9 +15,8 @@
             <li>
                 <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
                 <h2>{{ recipe['title'] }}</h2>
-                <!-- <a href="{{ url_for('recipe', recipe_id=recipe['id']) }}">View Recipe</a> -->
                 <a href="{{ recipe.sourceUrl }}" target="_blank"">View Recipe</a>
-                <form method="POST" action="/recipe/{{ recipe.id }}/like">
+                <form method="POST" action="/recipe/{{ recipe.id }}/save">
                     <button type="submit" class="btn btn-link">
                       {% if g.user and recipe in g.user.saved_recipes %}
                         <i class="fas fa-star text-warning"></i> Unsave

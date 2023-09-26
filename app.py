@@ -14,6 +14,9 @@ import json
 from models import db, connect_db, User, Recipe, Saved_Recipes
 from forms import AddUserForm, LoginForm, SearchForm, BooleanField
 
+
+apiKey = '5e3f80e8f6f64272a5a29fc9e6c99b74'
+
 CURR_USER_KEY = "curr_user"
 
 valid_allergens = ["dairy", "eggs", "nuts", "peanuts", "carrots", "celery", "wheat", "soy", "fish", "shellfish", "fruit"]
@@ -215,15 +218,16 @@ def index():
 
 
     # Your Spoonacular API key
-    api_key = '5e3f80e8f6f64272a5a29fc9e6c99b74'
+    # api_key = '5e3f80e8f6f64272a5a29fc9e6c99b74'
 
     # Make a request to the Spoonacular API to fetch random recipes
-    url = f'https://api.spoonacular.com/recipes/random?number=5&apiKey={api_key}'
+    url = f'https://api.spoonacular.com/recipes/random?number=5&apiKey={apiKey}'
     response = requests.get(url)
 
     if response.status_code == 200:
         # Parse the JSON response
         data = response.json()
+        print(data, "********")
 
         # Extract the list of random recipes
         recipes = data['recipes']
@@ -251,7 +255,7 @@ def search():
         user_input = form.excluded_ingredients.data
         excluded_ingredients = []
 
-        apiKey = '5e3f80e8f6f64272a5a29fc9e6c99b74'
+        # apiKey = '5e3f80e8f6f64272a5a29fc9e6c99b74'
         number = 10
         excludedIngredients = ','.join(excluded_ingredients)
         start = 0
@@ -259,7 +263,7 @@ def search():
         # Split user input by commas and trim whitespace from each ingredient
         user_ingredients = [ingredient.strip() for ingredient in user_input.split(',')]
 
-        # Check if user-entered ingredients are valid
+        # Check if user-entered ingredients are valid (valid_allergens defined at top of script^^)
         for ingredient in user_ingredients:
             if ingredient in valid_allergens:
                 excluded_ingredients.append(ingredient)
@@ -272,13 +276,14 @@ def search():
         else:
             # Send a request to the Spoonacular API to search for recipes
             params = {
-                'apiKey': '5e3f80e8f6f64272a5a29fc9e6c99b74',
-                'number': 10,
+                'apiKey': apiKey,
+                'number': number,
                 'excludedIngredients': ','.join(excluded_ingredients),
+                'addRecipeInformation': 'true',
             }
 
             response = requests.get(
-                f"https://api.spoonacular.com/recipes/complexSearch?apiKey={apiKey}&excludeIngredients={excludedIngredients}&number={number}&offset={start}", params=params
+                f"https://api.spoonacular.com/recipes/complexSearch?apiKey={apiKey}&excludeIngredients={excludedIngredients}&number={number}&offset={start}&addRecipeInformation=true", params=params
                 )
 
             if response.status_code == 200:
@@ -286,15 +291,7 @@ def search():
                 recipes = data.get('results', [])
                 print(data, "******************")
 
-                # Store the recipes in your database
-                for recipe_data in recipes:
-                    new_recipe = Recipe(
-                        title=recipe_data["title"],
-                        usedIngredients=", ".join(recipe_data["usedIngredients"]),
-                        instructions=recipe_data["instructions"],
-                        image=recipe_data["image"]
-                    )
-                    db.session.add(new_recipe)
+                
 
             else:
                 recipes = []
@@ -304,9 +301,8 @@ def search():
     return render_template('search.html', form=form, recipes=None)
 
 
+
 ####### General User Recipe routes routes ########
-
-
 
 @app.route('/profile/<int:user_id>')
 def user_profile(user_id):
@@ -319,40 +315,67 @@ def user_profile(user_id):
 
 
 
-####### Recipe/Saved Recipe routes ########
+####### Save/Saved Recipe routes ########
 
-@app.route('/recipes/<int:recipe_id>/save', methods=['POST'])
+@app.route('/recipe/<int:recipe_id>/save', methods=['POST'])
 def save_recipe(recipe_id):
+    """Get and Store API id in db here"""
 
     if not g.user:
-        flash("You must be logged in to save recipes.", 'danger')
+        # flash("You must be logged in to save recipes.", 'danger')
         return redirect('/login')
+    
+    # recipe_id = requests.get(f'https://api.spoonacular.com/recipes/{id}/information')
+    
+    api_url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
+    params = {
+        'apiKey': apiKey
+    }
 
-    recipe = Recipe.query.get_or_404(recipe_id)
+    try:
+        response = requests.get(api_url, params=params)
 
-    if recipe in g.user.Saved_Recipes:
-        g.user.Saved_Recipes.remove(recipe)
-    else:
-        save = Saved_Recipes(user=g.user, recipe=recipe)
-        db.session.add(save)
+        if response.status_code == 200:
+        # Extract the 'id' from the API response
+            recipe_info = response.json()
+            recipe_api_id = recipe_info.get('id')
 
-    db.session.commit()
-    return redirect('/')
+        # Check if a recipe with the given API 'id' already exists in your database
+            recipe = Recipe.query.filter_by(spoonacular_id=recipe_api_id).first()
+
+            if recipe is None:
+            # Recipe with this API 'id' doesn't exist, create a new recipe record
+                new_recipe = Recipe(spoonacular_id=recipe_api_id)
+                db.session.add(new_recipe)
+                db.session.commit()
+                recipe = new_recipe
 
 
-@app.route('/users/<int:user_id>/liked')
-def savedRecipes(user_id):
-    user = User.query.get_or_404(user_id)
-    savedRecipes = user.Saved_Recipes
+            if recipe in g.user.saved_recipes:
+                g.user.saved_recipes.remove(recipe)
+            else:
+                save = Saved_Recipes(user=g.user, recipe=recipe)
+                db.session.add(save)
+                db.session.commit()
+                return jsonify({"message": "***Recipe saved successfully.***"})
+    
+        else: 
+            return jsonify({"error": "API request failed with status code " + str(response.status_code)})
+    except Exception as e:
+            return jsonify({"error": "An exception occurred: " + str(e)})
 
-    return render_template('saved.html', user=user, savedRecipes=savedRecipes)
+    # else: 
+    #     return redirect(url_for('index'))
 
-@app.route('/recipe/<int:recipe_id>')
-def recipe(recipe_id):
-    #the recipe route code
-    recipe = Recipe.query.get(recipe_id)
 
-    return render_template('recipe.html', recipe=recipe)
+# @app.route('/users/<int:user_id>/liked')
+# def savedRecipes(user_id):
+#     """Show page listing user saved recipes"""
+#     user = User.query.get_or_404(user_id)
+#     savedRecipes = user.Saved_Recipes
+
+#     return render_template('saved.html', user=user, savedRecipes=savedRecipes)
+
 
 
 

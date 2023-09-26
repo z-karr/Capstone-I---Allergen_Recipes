@@ -9,22 +9,18 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+"""Many Users can save many Recipes, and many Recipes can be saved by many Users"""
 
-
-# Define the saved_recipes table here                            ##### I THINK CHANGE THIS TO ITS OWN ACTUAL CLASS TABLE
-# saved_recipes = db.Table(
-#     'saved_recipes',
-#     db.Column('user_id', db.Integer, db.ForeignKey('User.id')),
-#     db.Column('recipe_id', db.Integer, db.ForeignKey('Recipe.id'))
-# )
 class Saved_Recipes(db.Model):
     __tablename__= 'saved_recipes'
-    id = db.Column(db.Integer, primary_key=True)
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
     recipe_id = db.Column(db.Integer, db.ForeignKey('Recipe.id'))
 
     user = db.relationship('User', backref='saved_recipes')
     recipe = db.relationship('Recipe', backref='saved_recipes')
+
 
 class User(db.Model):
     __tablename__ = 'User'
@@ -32,16 +28,9 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
+    
+    
 
-   # Define the many-to-many relationship with Recipe
-    # saved_recipes = db.relationship(
-    #     'Recipe',
-    #     secondary='saved_recipes',
-    #     backref=db.backref('user_saved', lazy='dynamic'),
-    #     primaryjoin=(id == saved_recipes.c.user_id),
-    #     secondaryjoin=(saved_recipes.c.recipe_id == id),
-        
-    # )
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -91,11 +80,14 @@ class User(db.Model):
 
 class Recipe(db.Model):
     __tablename__ = 'Recipe'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
-    usedIngredients = db.Column(db.String(200))
-    instructions = db.Column(db.Text)
-    image = db.Column(db.String(200))
+
+    # auto increment field
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True) 
+    #Spoonacular API id field
+    spoonacular_id = db.Column(db.Integer, unique=True)
+
+   
+
 
     # Define the many-to-many relationship with User
     # users = db.relationship(
