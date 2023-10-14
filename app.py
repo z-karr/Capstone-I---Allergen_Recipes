@@ -11,8 +11,10 @@ import json
 
 
 
-from models import db, connect_db, User, Recipe, Saved_Recipes
-from forms import AddUserForm, LoginForm, SearchForm, BooleanField
+from models import db, connect_db, User, Recipe
+from forms import AddUserForm, LoginForm, SearchForm
+from flask_wtf.csrf import CSRFProtect, CSRFError
+
 
 
 apiKey = '5e3f80e8f6f64272a5a29fc9e6c99b74'
@@ -23,6 +25,8 @@ valid_allergens = ["dairy", "eggs", "nuts", "peanuts", "carrots", "celery", "whe
 
 
 app = Flask(__name__)
+
+csrf = CSRFProtect(app)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
@@ -90,7 +94,7 @@ def signup():
             db.session.commit()
         
         except IntegrityError:
-            flash(("Username already taken", 'danger'))
+            # flash(("Username already taken", 'danger'))
             return render_template('signup.html', form=form)
         
         do_login(user)
@@ -114,10 +118,10 @@ def login():
         
         if user:
             do_login(user)
-            flash((f"Hello, {user.username}!", "success"))
+            # flash((f"Hello, {user.username}!", "success"))
             return redirect("/")
 
-        flash(("Invalid credentials.", 'danger'))
+        # flash(("Invalid credentials.", 'danger'))
 
     return render_template('login.html', form=form)
 
@@ -127,7 +131,7 @@ def login():
 def logout():
     # the logout route code
     do_logout()
-    flash('Logged out successfully!', 'success')
+    # flash('Logged out successfully!', 'success')
 
     return redirect('/login')
 
@@ -147,6 +151,7 @@ def index():
     if response.status_code == 200:
         # Parse the JSON response
         data = response.json()
+        # print response data
         print(data, "********")
 
         # Extract the list of random recipes
@@ -155,9 +160,7 @@ def index():
         # Render the template with the form and recipes
         return render_template('index.html', form=form, recipes=recipes)
     else:
-        # Handle API request error, e.g., by displaying an error message
-        flash(("Error retrieving recipes." 'error'))
-        return render_template('index.html')
+        return render_template('index.html', form=form)
 
 
 
@@ -165,10 +168,13 @@ def index():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    """Get the recipe_id from API in this route and commit it to the database"""
+
     form = SearchForm()
 
     recipes = []
-
+    excluded_ingredients = []
+ 
     
 
     if form.validate_on_submit():
@@ -210,82 +216,163 @@ def search():
                 data = response.json()
                 recipes = data.get('results', [])
                 print(data, "******************")
+                
 
                 
 
             else:
                 recipes = []
 
-            return render_template('search.html', form=form, recipes=recipes)
+            return render_template('search.html', form=form, recipes=recipes, excluded_ingredient=excluded_ingredients)
 
-    return render_template('search.html', form=form, recipes=None)
-
-
-
-####### General User Recipe routes routes ########
-
-@app.route('/profile/<int:user_id>')
-def user_profile(user_id):
-    # Route takes user_id as a parameter, retrieves user info from SQLAlchemy db
-    user = User.query.get(user_id)
-    if user:
-        return render_template('profile.html', user=user)
-    else:
-        return "User not found", 404
+    return render_template('search.html', form=form, recipes=None, excluded_ingredients=excluded_ingredients)
+    
 
 
-
-####### Save/Saved Recipe routes ########
-
-@app.route('/recipe/<int:recipe_id>/save', methods=['POST'])
+# *******THIS route WORKS and STORES IN BOTH TABLES
+#           - the recipes stored in the database don't start at id 1, is that a problem?
+#           - which of these can I make front-end using JS?
+# 
+#           - how do I make the search return the recipes in a random order, so they arent the same everytime?
+#           - when a recipe is removed, how can I make it so I can add it again, or un-remove it?
+#           - ****When I click save, how can I make it so we stay on that page and continue scrolling and saving other recipes?
+#           
+# ************
+@app.route('/recipes/<int:recipe_id>/save', methods=['POST'])
 def save_recipe(recipe_id):
-    """Get and Store API id in db here"""
 
     if not g.user:
-        # flash("You must be logged in to save recipes.", 'danger')
         return redirect('/login')
+
     
-    # recipe_id = requests.get(f'https://api.spoonacular.com/recipes/{id}/information')
-    
-    api_url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
-    params = {
-        'apiKey': apiKey
-    }
 
     try:
+        
+        api_url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
+        print("API URL:", api_url)
+        params = {
+            'apiKey': apiKey  # 'apiKey' is defined at top of script
+        }
+
         response = requests.get(api_url, params=params)
 
         if response.status_code == 200:
-        # Extract the 'id' from the API response
             recipe_info = response.json()
-            recipe_api_id = recipe_info.get('id')
+            spoonacular_id = recipe_info.get('id')
 
-        # Check if a recipe with the given API 'id' already exists in your database
-            recipe = Recipe.query.filter_by(spoonacular_id=recipe_api_id).first()
+            recipe = Recipe.query.filter_by(spoonacular_id=spoonacular_id).first()
 
+            print(recipe, "**********")
+            print(recipe in g.user.user_recipes)
+            print(g.user.user_recipes)
             if recipe is None:
-            # Recipe with this API 'id' doesn't exist, create a new recipe record
-                new_recipe = Recipe(spoonacular_id=recipe_api_id)
+                new_recipe = Recipe(spoonacular_id=spoonacular_id)
                 db.session.add(new_recipe)
                 db.session.commit()
-                recipe = new_recipe
-
-
-            if recipe in g.user.saved_recipes:
-                g.user.saved_recipes.remove(recipe)
-            else:
-                save = Saved_Recipes(user=g.user, recipe=recipe)
-                db.session.add(save)
+                g.user.user_recipes.append(new_recipe)
                 db.session.commit()
-                return jsonify({"message": "***Recipe saved successfully.***"})
-    
-        else: 
-            return jsonify({"error": "API request failed with status code " + str(response.status_code)})
-    except Exception as e:
-            return jsonify({"error": "An exception occurred: " + str(e)})
+                # return jsonify({"message": "*** 1 Recipe saved successfully.***"})
+                return jsonify({"message": "*** Recipe saved successfully.***"})
 
-    # else: 
-    #     return redirect(url_for('index'))
+            # if recipe not in g.user.user_recipes:
+            #     new_recipe = Recipe(spoonacular_id=spoonacular_id)
+            #     db.session.add(new_recipe)
+            #     db.session.commit()
+            #     g.user.user_recipes.append(new_recipe)
+            #     db.session.commit()
+            #     return jsonify({"message": "***Recipe saved successfully.***"})
+            
+            if recipe in g.user.user_recipes:
+                g.user.user_recipes.remove(recipe)  # Remove from User.user_recipes relationship
+                db.session.commit()
+
+                db.session.delete(recipe)  # Delete from the Recipe table
+                db.session.commit()
+                # g.user.user_recipes.remove(recipe)
+                # db.session.commit()
+                # recipe.remove(recipe)
+                # db.session.commit()
+                return jsonify({"message": "***Recipe removed successfully.***"})
+            
+            
+            # else:
+            #     g.user.user_recipes.remove(recipe)
+            #     db.session.commit()
+            #     return jsonify({"message": "***Recipe removed successfully.***"})
+            
+            # else:
+            #     g.user.user_recipes.append(recipe)
+            #     db.session.commit()
+            #     # return jsonify({"message": "*** 2 Recipe saved successfully.***"})
+            #     return jsonify({"message": "*** 2 Recipe saved successfully.***"})
+                
+
+        return jsonify({"error": "API request failed with status code " + str(response.status_code)}), 400
+    
+    except CSRFError:
+        return jsonify({"error": str(e)}), 400
+
+    except Exception as e:
+        return jsonify({"error": "An exception occurred: " + str(e)}), 500
+    
+
+
+@app.route('/recipes/<int:recipe_id>/save_status', methods=['GET'])
+def check_save_status(recipe_id):
+    """Check if the recipe is saved for the current user."""
+
+    if not g.user:
+        return jsonify({"saved": False})
+
+    # Retrieve the recipe from the database based on recipe_id
+    recipe = Recipe.query.filter_by(spoonacular_id=recipe_id).first()
+
+    if recipe and recipe in g.user.user_recipes:
+        return jsonify({"saved": True})
+    else:
+        return jsonify({"saved": False})
+
+    
+
+
+@app.route('/saved', methods=['GET'])
+def saved():
+    """Show user saved recipes on a page"""
+
+    if not g.user:
+        return redirect('/login')
+    
+     # Retrieve all saved recipes for the current user
+    user_recipes = g.user.user_recipes
+
+     # List to store detailed recipe information
+    detailed_recipes = []
+
+    # Fetch detailed information for each saved recipe from the API
+    for recipe in user_recipes:
+        api_url = f'https://api.spoonacular.com/recipes/{recipe.spoonacular_id}/information'
+        params = {
+            'apiKey': apiKey  # apiKey defined at top of script
+        }
+
+        response = requests.get(api_url, params=params)
+
+        if response.status_code == 200:
+            detailed_recipe_info = response.json()
+            detailed_recipes.append(detailed_recipe_info)
+        else:
+            # Handle API request error (e.x., log the error, skip the recipe, etc.)
+            pass
+
+    # Pass the detailed recipes to the template
+    return render_template("saved.html", detailed_recipes=detailed_recipes)
+    
+    # # Retrieve all saved recipes for the current user
+    # saved = g.user.saved_recipes
+
+    # Pass the saved recipes to the template
+    # return render_template("saved.html", saved=saved)
+    
 
 
 

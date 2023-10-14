@@ -4,27 +4,43 @@
 <head>
     <title>Search Results</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha384-XXXXX" crossorigin="anonymous">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
 </head>
 
 <body>
 
-    <h2>Recipes excluding </h2>
+    <h2>Recipes excluding {{ form.excluded_ingredients.data }}</h2>
     {% if recipes %}
         <ul id="search-results">
             {% for recipe in recipes %}
             <li>
                 <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
                 <h2>{{ recipe['title'] }}</h2>
+                <!-- <p>{{ recipe.summary | safe | striptags }}</p> -->
                 <a href="{{ recipe.sourceUrl }}" target="_blank"">View Recipe</a>
-                <form method="POST" action="/recipe/{{ recipe.id }}/save">
-                    <button type="submit" class="btn btn-link">
-                      {% if g.user and recipe in g.user.saved_recipes %}
-                        <i class="fas fa-star text-warning"></i> Unsave
-                      {% else %}
-                        <i class="far fa-star"></i> Save
-                      {% endif %}
+                
+                <form method="POST" action="/recipes/{{ recipe.id }}/save" class="save-form">
+                    <!-- get the spoonacular recipe id from the form  -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-link save-button" data-recipe-id="{{ recipe.id }}">
+                        {% if g.user and recipe.id in g.user.user_recipes %}
+                            <i class="fas fa-star text-warning"></i> <span class="button-text">Unsave</span>
+                        {% else %}
+                            <i class="far fa-star"></i> <span class="button-text">Save</span>
+                        {% endif %}
                     </button>
-                  </form>
+                    
+                    <!-- <button type="submit" class="btn btn-link save-button" data-recipe-id="{{ recipe.id }}">
+                        {% if g.user and recipe.id in g.user.user_recipes %}
+                            <i class="fas fa-star text-warning"></i> Unsave
+                        {% else %}
+                            <i class="far fa-star"></i> Save
+                        {% endif %}
+                    </button> -->
+                </form>
+                
             </li>
             {% endfor %}
         </ul>

@@ -11,53 +11,62 @@
 
     <form method="POST" action="/search">
         {{ form.hidden_tag() }}
-    
-        <h2>Exclude Ingredients:</h2>
-        
+
+        <h2>Search for allergen-friendly recipes!</h2>
+        <p>Have an allergy? Enter ingredients that you wish to exclude from your cooking</p>
+        <br>
+
         <label>{{ form.excluded_ingredients.label }}</label>
         {{ form.excluded_ingredients(class="form-control") }}
         <br>
-    
+
         <div class="form-group">
             <input type="submit" value="Search Recipes" class="btn btn-primary">
         </div>
     </form>
-    
 
-    
-    {% if g.user.is_authenticated %}
-    <p>Welcome, {{ g.user.email }}!</p>
+
+
+    {% if g.user %}
+    <p>Welcome, {{ g.user.username }}!</p>
+    <br>
+    <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+    <br>
     <a href="{{ url_for('logout') }}">Logout</a>
-    <h2>Saved Recipes</h2>
+
+    <!-- <h2>Saved Recipes</h2>
     <ul id="saved-recipes">
         {% for recipe in g.user.saved_recipes %}
         <li>{{ recipe.name }} <form class="unsave-form" data-recipe-id="{{ recipe.id }}"><input type="submit"
                     value="Remove"></form>
         </li>
         {% endfor %}
-    </ul>
+    </ul> -->
     {% else %}
     <a href="{{ url_for('login') }}">Login</a>
     <a href="{{ url_for('signup') }}">Sign Up</a>
     {% endif %}
 
     <!-- Display the random recipes -->
-    <h2>Random Recipes</h2>
-    <ul>
-        {% for recipe in recipes %}
-        <li>
-            <a href="{{ recipe.sourceUrl }}" target="_blank"> <!-- Link to the recipe source -->
-                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="200" height="150"> <!-- Recipe image -->
-                <h3>{{ recipe.title }}</h3> <!-- Recipe title -->
-                <!-- Sanitize and display the description using beautifulsoup -->
-                <p>{{ recipe.summary | safe | striptags }}</p>
-            </a>
-        </li>
-        {% endfor %}
+    <div class="recipe-list-container">
+        <h2>Random Recipes</h2>
+        <ul>
+            {% for recipe in recipes %}
+            <li>
+                <a href="{{ recipe.sourceUrl }}" target="_blank"> <!-- Link to the recipe source -->
+                    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="200" height="150">
+                    <!-- Recipe image -->
+                    <h3>{{ recipe.title }}</h3> <!-- Recipe title -->
+                    <!-- Marks the summary from api as safe html, and displays the description using beautifulsoup -->
+                    <p>{{ recipe.summary | safe | striptags }}</p>
+                </a>
+            </li>
+            <!-- {% endfor %}
         {% for message in messages %}
         <li class="{{ message[1] }}">{{ message[0] }}</li>
-        {% endfor %}
-    </ul>
+        {% endfor %} -->
+        </ul>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

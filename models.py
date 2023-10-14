@@ -11,23 +11,25 @@ db = SQLAlchemy()
 
 """Many Users can save many Recipes, and many Recipes can be saved by many Users"""
 
-class Saved_Recipes(db.Model):
-    __tablename__= 'saved_recipes'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
-    recipe_id = db.Column(db.Integer, db.ForeignKey('Recipe.id'))
-
-    user = db.relationship('User', backref='saved_recipes')
-    recipe = db.relationship('Recipe', backref='saved_recipes')
+# Create an association table for the many-to-many relationship between users and recipes
+saved_recipes_association = db.Table('saved_recipes',
+    db.Column('user_id', db.Integer, db.ForeignKey('User.id')),
+    db.Column('recipe_id', db.Integer, db.ForeignKey('Recipe.id'))
+)
 
 
 class User(db.Model):
     __tablename__ = 'User'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
+    user_recipes = db.relationship("Recipe", secondary=saved_recipes_association)
+
+   
+
+    
     
     
 
@@ -85,25 +87,6 @@ class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True) 
     #Spoonacular API id field
     spoonacular_id = db.Column(db.Integer, unique=True)
-
-   
-
-
-    # Define the many-to-many relationship with User
-    # users = db.relationship(
-    #     'User',
-    #     secondary='saved_recipes',
-    #     backref=db.backref('recipes', lazy='dynamic')
-    # )
-
-
-     
-
-# saved_recipes = db.Table('saved_recipes',
-#     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-#     db.Column('recipe_id', db.Integer, db.ForeignKey('recipe.id'))
-# )
-
 
 
 def connect_db(app):

@@ -2,18 +2,35 @@
 <html>
 
 <head>
-    <title>{{ recipe.title }}</title>
+    <title>Saved Recipes</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
 </head>
+<body>
+    <h3>Your Saved Recipes</h3>
+    <ul>
+        {% for recipe in detailed_recipes %}
+        <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
+        <h2>{{ recipe['title'] }}</h2>
+        <a href="{{ recipe.sourceUrl }}" target="_blank">View Recipe</a>
+        <button class="save-button" data-recipe-id="{{ recipe['id'] }}">Save</button>
+        {% endfor %}
+    </ul>
 
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
 <!-- <body>
-    <h1>{{ recipe.title }}</h1>
-    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" width="300" height="300">
-    <h2>Ingredients:</h2>
-    <p>{{ recipe.ingredients }}</p>
-    <h2>Instructions:</h2>
-    <p>{{ recipe.instructions }}</p>
+    
+    <h3>Your Saved Recipes</h3>
+    <ul>
+        {% for recipe in detailed_recipes %}
+        <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
+        <h2>{{ recipe['title'] }}</h2>
+        <a href="{{ recipe.sourceUrl }}" target="_blank"">View Recipe</a>
+        {% endfor %}
+    </ul>
 </body> -->
+
 
 </html>
