@@ -46,7 +46,8 @@ nav {
 }
 
 .nav-links a:hover {
-    color: #2980b9; /* Darker blue on hover */
+    color: #2980b9;
+    /* Darker blue on hover */
 }
 
 /* Form styles */
@@ -64,14 +65,16 @@ label {
     display: block;
     font-weight: bold;
     margin-bottom: 15px;
-    color: #2c3e50; /* Calming dark blue */
+    color: #2c3e50;
+    /* Calming dark blue */
 }
 
 .form-control {
     width: calc(100% - 20px);
     padding: 12px;
     font-size: 16px;
-    border: 2px solid #3498db; /* Bright blue border */
+    border: 2px solid #3498db;
+    /* Bright blue border */
     border-radius: 6px;
     margin-bottom: 20px;
     color: #333;
@@ -80,12 +83,15 @@ label {
 
 .form-control:focus {
     outline: none;
-    border-color: #2980b9; /* Darker blue border on focus */
+    border-color: #2980b9;
+    /* Darker blue border on focus */
 }
 
 
-.btn-primary, .btn-save  {
-    background-color: #3498db; /* Bright blue button */
+.btn-primary,
+.btn-save {
+    background-color: #3498db;
+    /* Bright blue button */
     color: #fff;
     border: none;
     padding: 12px 24px;
@@ -95,12 +101,15 @@ label {
     transition: background-color 0.3s ease;
 }
 
-.btn-primary:hover, .btn-save:hover {
-    background-color: #2980b9; /* Darker blue on hover */
+.btn-primary:hover,
+.btn-save:hover {
+    background-color: #2980b9;
+    /* Darker blue on hover */
 }
 
 .btn-link {
-    color: #3498db; /* Bright blue link */
+    color: #3498db;
+    /* Bright blue link */
     margin-right: 25px;
     text-decoration: none;
     font-weight: bold;
@@ -108,36 +117,45 @@ label {
 }
 
 .btn-link:hover {
-    color: #2980b9; /* Darker blue on hover */
+    color: #2980b9;
+    /* Darker blue on hover */
 }
 
 /* Save/unsave button styles */
 .save-button {
-    background-color: #3498db; /* Bright blue button */
+    background-color: #3498db;
+    /* Bright blue button */
     color: #fff;
     border: none;
-    padding: 8px 16px; 
-    font-size: 14px; /* Adjust the font size as needed */
+    padding: 8px 16px;
+    font-size: 14px;
+    /* Adjust the font size as needed */
     cursor: pointer;
     border-radius: 6px;
     transition: background-color 0.3s ease;
-    display: inline-block; /* Add this line to remove extra space around the button */
+    display: inline-block;
+    /* Add this line to remove extra space around the button */
 }
 
 .save-button:hover {
-    background-color: #2980b9; /* Darker blue on hover */
+    background-color: #2980b9;
+    /* Darker blue on hover */
 }
 
 
 /* Header styles */
-h1, h2, h3 {
-    color: #3498db; /* Bright blue headings */
+h1,
+h2,
+h3 {
+    color: #3498db;
+    /* Bright blue headings */
     margin-bottom: 15px;
 }
 
 /* Navigation links */
 a {
-    color: #3498db; /* Bright blue links */
+    color: #3498db;
+    /* Bright blue links */
     margin-right: 25px;
     text-decoration: none;
     font-weight: bold;
@@ -145,7 +163,8 @@ a {
 }
 
 a:hover {
-    color: #2980b9; /* Darker blue on hover */
+    color: #2980b9;
+    /* Darker blue on hover */
 }
 
 /* Search results styles */
@@ -160,9 +179,12 @@ ul#search-results {
 ul#search-results li {
     text-align: center;
     width: 250px;
-    display: flex; /* Use flexbox for each list item */
-    flex-direction: column; /* Arrange child elements vertically */
-    align-items: center; /* Center child elements horizontally */
+    display: flex;
+    /* Use flexbox for each list item */
+    flex-direction: column;
+    /* Arrange child elements vertically */
+    align-items: center;
+    /* Center child elements horizontally */
     background-color: #ffffff;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -177,20 +199,25 @@ ul#search-results li:hover {
 }
 
 .recipe-image {
-    width: 100%; /* Make the image fill the container width */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 10px; /* Add some space between the image and title */
+    width: 100%;
+    /* Make the image fill the container width */
+    height: auto;
+    /* Maintain aspect ratio */
+    margin-bottom: 10px;
+    /* Add some space between the image and title */
 }
 
 .recipe-title {
     font-weight: bold;
-    margin: 0; /* Reset margin to ensure no extra spacing around the title */
+    margin: 0;
+    /* Reset margin to ensure no extra spacing around the title */
 }
 
 .recipe-summary {
     font-size: 14px;
     color: #666;
-    margin: 10px 0; /* Adjust margin for spacing */
+    margin: 10px 0;
+    /* Adjust margin for spacing */
 }
 
 .recipe-link {
@@ -210,7 +237,8 @@ ul#search-results li:hover {
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 30px;
-    width: 500px; /* Adjust the width as needed */
+    width: 500px;
+    /* Adjust the width as needed */
     margin-bottom: 30px;
 }
 
@@ -222,198 +250,12 @@ ul#search-results li:hover {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Make each item full-width within the container */
+    width: 100%;
+    /* Make each item full-width within the container */
     /* added */
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-
-
-
-
-
-/* body {
-    font-family: Arial, sans-serif;
-    background-color: #f6f9fc;
-    color: #333;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-}
-
-/* Form styles */
-/* form {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 300px;
-    margin-bottom: 20px;
 }
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.form-control {
-    width: calc(100% - 20px);
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.btn-primary, .btn-save {
-    background-color: #ff8c00;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-} */
-
-/* .btn-primary:hover, .btn-save:hover {
-    background-color: #ff6f00;
-}
-
-.btn-link {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #ff8c00;
-}
-
-.btn-link:hover {
-    text-decoration: underline;
-}
-
-/* Header styles */
-/* h1, h2, h3 {
-    color: #ff8c00;
-    margin-bottom: 10px;
-} */ 
-
-/* Paragraph styles */
-/* p {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
-  }  */
-
-/* Navigation links */
-/* a {
-    color: #ff8c00;
-    margin-right: 20px;
-    text-decoration: none;
-    font-weight: bold;
-} */
-
-/* a:hover {
-    text-decoration: underline;
-} */
-
-/* Flash messages styles */
-/* .flash-messages li {
-    margin-bottom: 10px;
-} */
-
-/* Search results styles */
-/* ul#search-results {
-    list-style: none;
-    padding: 0;
-} */
-
-/* ul#search-results li {
-    margin-bottom: 20px;
-} */
-
-
-/* search results individual recipe item styling */
-
-
-/* .recipe-item {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.recipe-details {
-    margin-top: 10px;
-}
-
-.recipe-description {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 10px;
-} */
-
-
-/* Custom checkbox styles */
-/* .checkbox-container {
-    display: inline-block;
-    position: relative;
-    padding-left: 35px;
-    cursor: pointer;
-    font-size: 16px;
-} */
-
-/* .checkbox-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-} */
-
-/* .checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 25px;
-    width: 25px;
-    background-color: #eee;
-    border-radius: 4px;
-}
-
-.checkbox-container:hover input ~ .checkmark {
-    background-color: #ccc;
-}
-
-.checkbox-container input:checked ~ .checkmark {
-    background-color: #4caf50;
-}
-
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-} */
-
-/* .checkbox-container input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.checkbox-container .checkmark:after {
-    left: 9px;
-    top: 5px;
-    width: 6px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
-} */ 
