@@ -8,6 +8,20 @@
 </head>
 
 <body>
+    <nav>
+        {% if g.user %}
+        <p>Welcome, {{ g.user.username }}!</p>
+        <br>
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <br>
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+        {% endif %}
+    </nav>
 
     <form method="POST" action="/search">
         {{ form.hidden_tag() }}
@@ -26,30 +40,24 @@
     </form>
 
 
+    <!-- <nav>
+        {% if g.user %}
+        <p>Welcome, {{ g.user.username }}!</p>
+        <br>
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <br>
+        <a href="{{ url_for('logout') }}">Logout</a>
 
-    {% if g.user %}
-    <p>Welcome, {{ g.user.username }}!</p>
-    <br>
-    <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
-    <br>
-    <a href="{{ url_for('logout') }}">Logout</a>
-
-    <!-- <h2>Saved Recipes</h2>
-    <ul id="saved-recipes">
-        {% for recipe in g.user.saved_recipes %}
-        <li>{{ recipe.name }} <form class="unsave-form" data-recipe-id="{{ recipe.id }}"><input type="submit"
-                    value="Remove"></form>
-        </li>
-        {% endfor %}
-    </ul> -->
-    {% else %}
-    <a href="{{ url_for('login') }}">Login</a>
-    <a href="{{ url_for('signup') }}">Sign Up</a>
-    {% endif %}
+       
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+        {% endif %}
+    </nav> -->
 
     <!-- Display the random recipes -->
     <div class="recipe-list-container">
-        <h2>Random Recipes</h2>
+        <h2>Browse Recipes</h2>
         <ul>
             {% for recipe in recipes %}
             <li>

@@ -11,6 +11,11 @@
 
 <body>
 
+    <nav>
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+    
     <h2>Recipes excluding {{ form.excluded_ingredients.data }}</h2>
     {% if recipes %}
         <ul id="search-results">
