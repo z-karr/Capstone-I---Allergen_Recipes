@@ -8,7 +8,23 @@
 </head>
 
 <body>
+
     <nav>
+        {% if g.user %}
+        <div class="nav-links">
+            <p>Welcome, {{ g.user.username }}!</p>
+            <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        {% else %}
+        <div class="nav-links">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        </div>
+        {% endif %}
+    </nav>
+    
+    <!-- <nav>
         {% if g.user %}
         <p>Welcome, {{ g.user.username }}!</p>
         <br>
@@ -21,13 +37,18 @@
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('signup') }}">Sign Up</a>
         {% endif %}
-    </nav>
+    </nav> -->
+    
 
-    <form method="POST" action="/search">
+    <form id="search-form" method="POST" action="/search">
         {{ form.hidden_tag() }}
 
-        <h2>Search for allergen-friendly recipes!</h2>
-        <p>Have an allergy? Enter ingredients that you wish to exclude from your cooking</p>
+        <h2>Search for allergen-friendly <br> recipes!</h2>
+        <p>
+            Have an allergy?
+            <br> 
+            Enter ingredients that you wish to exclude from your cooking
+        </p>
         <br>
 
         <label>{{ form.excluded_ingredients.label }}</label>
@@ -38,22 +59,6 @@
             <input type="submit" value="Search Recipes" class="btn btn-primary">
         </div>
     </form>
-
-
-    <!-- <nav>
-        {% if g.user %}
-        <p>Welcome, {{ g.user.username }}!</p>
-        <br>
-        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
-        <br>
-        <a href="{{ url_for('logout') }}">Logout</a>
-
-       
-        {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('signup') }}">Sign Up</a>
-        {% endif %}
-    </nav> -->
 
     <!-- Display the random recipes -->
     <div class="recipe-list-container">
@@ -69,10 +74,7 @@
                     <p>{{ recipe.summary | safe | striptags }}</p>
                 </a>
             </li>
-            <!-- {% endfor %}
-        {% for message in messages %}
-        <li class="{{ message[1] }}">{{ message[0] }}</li>
-        {% endfor %} -->
+            {% endfor %}
         </ul>
     </div>
 

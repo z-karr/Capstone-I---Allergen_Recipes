@@ -4,33 +4,45 @@
 <head>
     <title>Saved Recipes</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    
+
 </head>
+
 <body>
+
+    <div class="nav-links">
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <!-- <nav>
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav> -->
+
     <h3>Your Saved Recipes</h3>
     <ul>
         {% for recipe in detailed_recipes %}
-        <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
-        <h2>{{ recipe['title'] }}</h2>
-        <a href="{{ recipe.sourceUrl }}" target="_blank">View Recipe</a>
-        <button class="save-button" data-recipe-id="{{ recipe['id'] }}">Save</button>
+        <li>
+            <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
+            <h2>{{ recipe['title'] }}</h2>
+            <a href="{{ recipe.sourceUrl }}" target="_blank">View Recipe</a>
+            <!-- <form method="POST" action="/recipes/{{ recipe.id }}/save" class="save-form"> -->
+                <!-- get the spoonacular recipe id from the form  -->
+                <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-link save-button" data-recipe-id="{{ recipe.id }}">
+                    {% if g.user and recipe.id in g.user.user_recipes %}
+                    <i class="fas fa-star text-warning"></i> <span class="button-text">Unsave</span>
+                    {% else %}
+                    <i class="far fa-star"></i> <span class="button-text">Save</span>
+                    {% endif %}
+                </button> -->
+            <!-- </form> -->
+            <!-- <button class="save-button" data-recipe-id="{{ recipe['id'] }}">Save</button> -->
+        </li>
         {% endfor %}
     </ul>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
-<!-- <body>
-    
-    <h3>Your Saved Recipes</h3>
-    <ul>
-        {% for recipe in detailed_recipes %}
-        <img src="{{ recipe['image'] }}" alt="{{ recipe['title'] }}" width="200" height="200">
-        <h2>{{ recipe['title'] }}</h2>
-        <a href="{{ recipe.sourceUrl }}" target="_blank"">View Recipe</a>
-        {% endfor %}
-    </ul>
-</body> -->
-
 
 </html>

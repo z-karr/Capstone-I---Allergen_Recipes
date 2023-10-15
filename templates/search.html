@@ -11,11 +11,15 @@
 
 <body>
 
-    <nav>
+    <div class="nav-links">
         <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
         <a href="{{ url_for('logout') }}">Logout</a>
-    </nav>
-    
+    </div>
+    <!-- <nav>
+        <a href="{{ url_for('saved') }}">Your Saved Recipes</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav> -->
+
     <h2>Recipes excluding {{ form.excluded_ingredients.data }}</h2>
     {% if recipes %}
         <ul id="search-results">
@@ -36,14 +40,6 @@
                             <i class="far fa-star"></i> <span class="button-text">Save</span>
                         {% endif %}
                     </button>
-                    
-                    <!-- <button type="submit" class="btn btn-link save-button" data-recipe-id="{{ recipe.id }}">
-                        {% if g.user and recipe.id in g.user.user_recipes %}
-                            <i class="fas fa-star text-warning"></i> Unsave
-                        {% else %}
-                            <i class="far fa-star"></i> Save
-                        {% endif %}
-                    </button> -->
                 </form>
                 
             </li>

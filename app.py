@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g, url_for, jsonify
 import requests
+import random
 # from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -129,7 +130,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    # the logout route code
+    
     do_logout()
     # flash('Logged out successfully!', 'success')
 
@@ -140,6 +141,13 @@ def logout():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    """Handle landing page.
+    
+        Generate search form.
+        
+        Request and generate random recipes from Spoonacular API.
+    """
+
     # Create an instance of the SearchForm
     form = SearchForm()
 
@@ -168,14 +176,18 @@ def index():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    """Get the recipe_id from API in this route and commit it to the database"""
+    """Request recipes from API excluding user-entered allergens/ingredient(s).
 
+        Return recipes, shuffled for randomization.
+    """
+    
     form = SearchForm()
 
     recipes = []
     excluded_ingredients = []
+
+    offset = int(request.args.get('offset', 0))  # Get the offset value from the query string or default to 0
  
-    
 
     if form.validate_on_submit():
         user_input = form.excluded_ingredients.data
@@ -205,7 +217,8 @@ def search():
                 'apiKey': apiKey,
                 'number': number,
                 'excludedIngredients': ','.join(excluded_ingredients),
-                'addRecipeInformation': 'true',
+                'addRecipeInformation': 'true', 
+                'offset': offset,  # Pass the offset parameter to the API 
             }
 
             response = requests.get(
@@ -216,9 +229,7 @@ def search():
                 data = response.json()
                 recipes = data.get('results', [])
                 print(data, "******************")
-                
-
-                
+                random.shuffle(recipes)
 
             else:
                 recipes = []
@@ -229,17 +240,9 @@ def search():
     
 
 
-# *******THIS route WORKS and STORES IN BOTH TABLES
-#           - the recipes stored in the database don't start at id 1, is that a problem?
-#           - which of these can I make front-end using JS?
-# 
-#           - how do I make the search return the recipes in a random order, so they arent the same everytime?
-#           - when a recipe is removed, how can I make it so I can add it again, or un-remove it?
-#           - ****When I click save, how can I make it so we stay on that page and continue scrolling and saving other recipes?
-#           
-# ************
 @app.route('/recipes/<int:recipe_id>/save', methods=['POST'])
 def save_recipe(recipe_id):
+    """save/unsave functionality for button on recipe"""
 
     if not g.user:
         return redirect('/login')
@@ -265,22 +268,15 @@ def save_recipe(recipe_id):
             print(recipe, "**********")
             print(recipe in g.user.user_recipes)
             print(g.user.user_recipes)
+
             if recipe is None:
                 new_recipe = Recipe(spoonacular_id=spoonacular_id)
                 db.session.add(new_recipe)
                 db.session.commit()
                 g.user.user_recipes.append(new_recipe)
                 db.session.commit()
-                # return jsonify({"message": "*** 1 Recipe saved successfully.***"})
+                
                 return jsonify({"message": "*** Recipe saved successfully.***"})
-
-            # if recipe not in g.user.user_recipes:
-            #     new_recipe = Recipe(spoonacular_id=spoonacular_id)
-            #     db.session.add(new_recipe)
-            #     db.session.commit()
-            #     g.user.user_recipes.append(new_recipe)
-            #     db.session.commit()
-            #     return jsonify({"message": "***Recipe saved successfully.***"})
             
             if recipe in g.user.user_recipes:
                 g.user.user_recipes.remove(recipe)  # Remove from User.user_recipes relationship
@@ -288,23 +284,9 @@ def save_recipe(recipe_id):
 
                 db.session.delete(recipe)  # Delete from the Recipe table
                 db.session.commit()
-                # g.user.user_recipes.remove(recipe)
-                # db.session.commit()
-                # recipe.remove(recipe)
-                # db.session.commit()
+                
                 return jsonify({"message": "***Recipe removed successfully.***"})
             
-            
-            # else:
-            #     g.user.user_recipes.remove(recipe)
-            #     db.session.commit()
-            #     return jsonify({"message": "***Recipe removed successfully.***"})
-            
-            # else:
-            #     g.user.user_recipes.append(recipe)
-            #     db.session.commit()
-            #     # return jsonify({"message": "*** 2 Recipe saved successfully.***"})
-            #     return jsonify({"message": "*** 2 Recipe saved successfully.***"})
                 
 
         return jsonify({"error": "API request failed with status code " + str(response.status_code)}), 400
@@ -319,7 +301,9 @@ def save_recipe(recipe_id):
 
 @app.route('/recipes/<int:recipe_id>/save_status', methods=['GET'])
 def check_save_status(recipe_id):
-    """Check if the recipe is saved for the current user."""
+    """If User is logged in, check if the recipe is saved for the current user,
+      so button on page reflects correct save/unsave state.
+    """
 
     if not g.user:
         return jsonify({"saved": False})
@@ -331,6 +315,32 @@ def check_save_status(recipe_id):
         return jsonify({"saved": True})
     else:
         return jsonify({"saved": False})
+    
+
+@app.route('/load_more', methods=['GET'])
+def load_more():
+    """Load more recipes based on the offset."""
+    
+    offset = request.args.get('offset', default=0, type=int)  # Get the offset from the query parameters
+    number = 10  # Number of recipes to load
+
+    # Perform a request to Spoonacular API to fetch more recipes based on the offset
+    params = {
+        'apiKey': apiKey,
+        'number': number,
+        'offset': offset,  # Use the received offset to get the next set of recipes
+        'addRecipeInformation': 'true',
+    }
+
+    response = requests.get("https://api.spoonacular.com/recipes/complexSearch", params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        results = data.get('results', [])
+        return jsonify({'results': results})  # Return the fetched recipes as JSON
+    else:
+        return jsonify({'error': 'Failed to load more recipes'}), 500  # Return an error response if the request fails
+
 
     
 
@@ -367,12 +377,6 @@ def saved():
     # Pass the detailed recipes to the template
     return render_template("saved.html", detailed_recipes=detailed_recipes)
     
-    # # Retrieve all saved recipes for the current user
-    # saved = g.user.saved_recipes
-
-    # Pass the saved recipes to the template
-    # return render_template("saved.html", saved=saved)
-    
 
 
 
@@ -381,17 +385,3 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-# Fetch API data
-# @app.route('/fetch-spoonacular-data', methods=['GET'])
-# def fetch_spoonacular_data():
-    
-#     # Get the data parameter sent from the AJAX request and parse it as JSON
-#     data = request.args.get('data')
-#     data_dict = json.loads(data)  # Parse the JSON data
-
-#     # Now, we can work with data_dict as a Python dictionary
-#     # For example, can access data_dict['key'] to get specific values
-    
-#     # can return a JSON response if needed
-#     response_data = {'message': 'Data received successfully', 'data': data_dict}
-#     return jsonify(response_data)
